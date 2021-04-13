@@ -166,6 +166,14 @@
         <name>set roll-deg</name>
         <type>gain</type>
         <debug>false</debug>
+        <gain>
+            <condition>
+                <property>autopilot/mode/low-bank</property>
+            </condition>
+            <value>15</value>
+        </gain>
+
+        <gain>30</gain>
 
         <enable>
             <condition>
@@ -204,7 +212,7 @@
             <expression>
                 <div>
                     <property>autopilot/mode/turn-knob</property>
-                    <value>240</value>
+                    <value>8</value>
                 </div>
             </expression>
         </input>
@@ -217,7 +225,7 @@
             <expression>
                 <div>
                     <property>autopilot/mode/turn-knob</property>
-                    <value>120</value>
+                    <value>4</value>
                 </div>
             </expression>
         </input>
@@ -312,6 +320,22 @@
 
 <!-- calculate rates -->
 
+    <!--
+    <filter>
+        <name>roll-kp</name>
+        <type>gain</type>
+        <debug>false</debug>
+        <input>
+            <condition>
+                <property>autopilot/mode/soft-ride</property>
+            </condition>
+            <value>0.0125</value>
+        </input>
+        <input>0.025</input>
+        <output>autopilot/input/roll-kp</output>
+    </filter>
+    -->
+
     <filter>
         <name>roll-rate-limit</name>
         <type>gain</type>
@@ -320,41 +344,10 @@
             <condition>
                 <property>autopilot/mode/soft-ride</property>
             </condition>
-            <value>4.0</value>
+            <value>30.0</value>
         </input>
-        <input>8.0</input>
+        <input>60.0</input>
         <output>autopilot/input/roll-rate-limit</output>
-    </filter>
-
-    <filter>
-        <name>roll-rate-degps</name>
-        <type>gain</type>
-        <debug>false</debug>
-        <input>
-            <condition>
-                <property>autopilot/mode/engaged</property>
-                <not><property>autopilot/mode/cws</property></not>
-            </condition>
-            <expression>
-                <product>
-                    <dif>
-                        <property>autopilot/input/roll-deg</property>
-                        <property>instrumentation/turn-indicator[0]/indicated-turn-rate</property>
-                    </dif>
-                    <property>autopilot/input/roll-rate-limit</property>
-                    <value>2.0</value>
-                </product>
-            </expression>
-        </input>
-        <input>0.0</input>
-        <output>autopilot/output/roll-rate-degps</output>
-        <min>
-            <property>autopilot/input/roll-rate-limit</property>
-            <scale>-1.0</scale>
-        </min>
-        <max>
-            <property>autopilot/input/roll-rate-limit</property>
-        </max>
     </filter>
 
     <filter>
@@ -394,83 +387,64 @@
 
 <!-- controlling -->
 
-    <filter>
-        <name>roll-rate-diff</name>
-        <debug>false</debug>
-        <type>gain</type>
-        <input>
-            <expression>
-                <dif>
-                    <property>orientation/roll-rate-degps</property>
-                    <property>autopilot/output/roll-rate-degps</property>
-                </dif>
-            </expression>
-        </input>
-        <output>autopilot/output/roll-rate-diff</output>
-    </filter>
-
-    <filter>
-        <name>aileron-diff</name>
-        <debug>false</debug>
-        <type>gain</type>
-        <input>
-            <expression>
-                <sum>
+    <pi-simple-controller>
+        <name>roll-rate</name>
+        <output>autopilot/output/roll-rate-degps</output>
+        <input>/orientation/roll-deg</input>
+        <reference>autopilot/input/roll-deg</reference>
+        <config>
+            <Kp>4</Kp>
+            <Ki>1</Ki>
+            <u_min>
+                <expression>
                     <product>
-                        <property>autopilot/output/roll-rate-diff</property>
-                        <value>0.1</value>
+                        <property>autopilot/input/roll-rate-limit</property>
+                        <value>-1</value>
                     </product>
-                    <property>controls/flight/aileron-fdm</property>
-                </sum>
-            </expression>
-        </input>
-        <output>autopilot/servo/aileron-diff</output>
-    </filter>
+                </expression>
+            </u_min>
+            <u_max>
+                <property>autopilot/input/roll-rate-limit</property>
+            </u_max>
+        </config>
+    </pi-simple-controller>
 
     <pid-controller>
-        <name>aileron control</name>
+        <name>roll rate control</name>
         <debug>false</debug>
-        <input>controls/flight/aileron-fdm</input>
-        <reference>autopilot/servo/aileron-diff</reference>
+        <input>/orientation/roll-rate-degps</input>
+        <reference>autopilot/output/roll-rate-degps</reference>
         <output>autopilot/servo/aileron-command</output>
         <config>
-            <Kp>-0.05</Kp>
-            <alpha>0.1</alpha>
+            <Kp>0.015</Kp>
             <beta>1.0</beta>
-            <gamma>2.0</gamma>
-            <Ti>0.1</Ti>
-            <Td>0.5</Td>
+            <alpha>0.5</alpha>
+            <gamma>0</gamma>
+            <Ti>1000.0</Ti>
+            <Td>0.01</Td>
             <u_min>-1.0</u_min>
             <u_max>1.0</u_max>
         </config>
     </pid-controller>
-
-<!--
+    <!--
     <pid-controller>
-        <name>aileron control command</name>
+        <name>roll control</name>
         <debug>false</debug>
-        <input>orientation/roll-rate-degps</input>
-        <reference>
-            <condition>
-                <property>autopilot/mode/engaged</property>
-                <not><property>autopilot/mode/cws</property></not>
-            </condition>
-            <property>autopilot/output/roll-rate-degps</property>
-        </reference>
-        <reference>orientation/roll-rate-degps</reference>
+        <input>/orientation/roll-deg</input>
+        <reference>autopilot/input/roll-deg</reference>
         <output>autopilot/servo/aileron-command</output>
         <config>
-            <Kp>0.010</Kp>
-            <alpha>0.1</alpha>
+            <Kp>autopilot/input/roll-kp</Kp>
             <beta>1.0</beta>
-            <gamma>0.0</gamma>
-            <Ti>0.5</Ti>
-            <Td>1.0</Td>
+            <alpha>0.5</alpha>
+            <gamma>0</gamma>
+            <Ti>3.0</Ti>
+            <Td>0.8</Td>
             <u_min>-1.0</u_min>
             <u_max>1.0</u_max>
         </config>
     </pid-controller>
--->
+    -->
 
     <pid-controller>
         <name>yaw damper</name>
