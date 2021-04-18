@@ -166,13 +166,6 @@
         <name>set roll-deg</name>
         <type>gain</type>
         <debug>false</debug>
-        <gain>
-            <condition>
-                <property>autopilot/mode/low-bank</property>
-            </condition>
-            <value>15</value>
-        </gain>
-
         <gain>30</gain>
 
         <enable>
@@ -232,6 +225,16 @@
 
         <input>autopilot/input/roll-deg</input>
         <output>autopilot/input/roll-deg</output>
+
+        <min>
+            <product>
+                <property>autopilot/input/bank-limit</property>
+                <value>-1</value>
+            </product>
+        </min>
+        <max>
+            <property>autopilot/input/bank-limit</property>
+        </max>
     </filter>
 
     <filter>
@@ -335,6 +338,24 @@
         <output>autopilot/input/roll-kp</output>
     </filter>
     -->
+
+    <filter>
+        <name>bank limit</name>
+        <type>gain</type>
+        <debug>false</debug>
+        <output>autopilot/input/bank-limit</output>
+        <input>
+            <condition>
+                <property>autopilot/mode/low-bank</property>
+            </condition>
+            <value>15</value>
+        </input>
+        <input>
+            <value>30</value>
+        </input>
+    </filter>
+
+
 
     <filter>
         <name>roll-rate-limit</name>
