@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+<sim>
+    <model>
+        <livery>
+            <name type="string">Tyrol Air Ambulance</name>
+            <texture type="string">Liveries/OE-GPS.png</texture>
+            <reflect-map-enabled type="int">1</reflect-map-enabled>
+            <reflection-correction type="float">-0.2</reflection-correction>
+            <ambient-correction type="float">0.15</ambient-correction>
+        </livery>
+    </model>
+    <aircraft-operator>TYW</aircraft-operator>
+    <aircraft-class>ga</aircraft-class>
+</sim>
+</PropertyList>
