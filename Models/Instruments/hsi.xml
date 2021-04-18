@@ -246,6 +246,57 @@
   </animation>
 
   <animation>
+    <type>translate</type>
+    <object-name>HSI.navbtn</object-name>
+    <axis>
+        <x>-1</x>
+        <y>0.0</y>
+        <z>0.0</z>
+    </axis>
+    <property alias="../../selected-source"/>
+    <factor>-0.01</factor>
+    <offset-m>0.01</offset-m>
+  </animation>
+  <animation>
+    <type>translate</type>
+    <object-name>HSI.adfbtn</object-name>
+    <axis>
+        <x>-1</x>
+        <y>0.0</y>
+        <z>0.0</z>
+    </axis>
+    <property alias="../../selected-source"/>
+    <factor>0.01</factor>
+  </animation>
+
+  <animation>
+    <type>pick</type>
+    <object-name>HSI.navbtn</object-name>
+    <action>
+        <button>0</button>
+        <repeatable>false</repeatable>
+        <binding>
+            <command>property-assign</command>
+            <property alias="../../../../selected-source"/>
+            <value>0</value>
+        </binding>
+    </action>
+  </animation>
+  <animation>
+    <type>pick</type>
+    <object-name>HSI.adfbtn</object-name>
+    <action>
+        <button>0</button>
+        <repeatable>false</repeatable>
+        <binding>
+            <command>property-assign</command>
+            <property alias="../../../../selected-source"/>
+            <value>1</value>
+        </binding>
+    </action>
+  </animation>
+
+  <animation>
     <type>knob</type>
     <object-name>HSI.crsknob</object-name>
     <property alias="/selected-radial-deg"/>
